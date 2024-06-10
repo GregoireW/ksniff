@@ -40,10 +40,12 @@ func (d *ContainerdBridge) BuildTcpdumpCommand(containerId *string, netInterface
     export CONTAINERD_NAMESPACE="k8s.io"
     export CONTAINER_RUNTIME_ENDPOINT="unix:///host${CONTAINERD_SOCKET}"
     export IMAGE_SERVICE_ENDPOINT=${CONTAINER_RUNTIME_ENDPOINT}
-    crictl pull %s >/dev/null
     netns=$(crictl inspect %s | jq '.info.runtimeSpec.linux.namespaces[] | select(.type == "network") | .path' | tr -d '"')
-    exec chroot /host ctr -a ${CONTAINERD_SOCKET} run --rm --with-ns "network:${netns}" %s %s %s 
-    `, d.socketPath, tcpdumpImage, *containerId, tcpdumpImage, d.tcpdumpContainerName, tcpdumpCommand)
+    cat <<EOF | exec chroot /host
+    ctr image pull %s > /dev/null 
+    ctr -a ${CONTAINERD_SOCKET} run --rm --with-ns "network:${netns}" %s %s %s
+    EOF
+    `, d.socketPath, *containerId, tcpdumpImage, tcpdumpImage, d.tcpdumpContainerName, tcpdumpCommand)
 	command := []string{"/bin/sh", "-c", shellScript}
 	return command
 }
