@@ -7,7 +7,7 @@ import (
 
 type ContainerdBridge struct {
 	tcpdumpContainerName string
-	socketPath string
+	socketPath           string
 }
 
 func NewContainerdBridge() *ContainerdBridge {
@@ -63,7 +63,7 @@ func (d *ContainerdBridge) BuildCleanupCommand() []string {
 }
 
 func (d ContainerdBridge) GetDefaultImage() string {
-	return "docker.io/hamravesh/ksniff-helper:v3"
+	return "docker.io/gregoirew/ksniff-helper:release"
 }
 
 func (d *ContainerdBridge) GetDefaultTCPImage() string {
